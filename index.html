@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 1095!</title>
+    <link rel="icon" href="image/favicon.png" type="image/x-icon">
+    <link rel="shortcut icon" href="image/favicon.png" type="image/png">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-image: url('image/bg-picture.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+        }
+
+        #my-canvas {
+            width: 700px;
+            height: 700px;
+            position: relative;
+        }
+
+        #play-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .button-container {
+            margin-top: 400px;
+            display: none;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #FEBCCB;
+            color: black;
+        }
+
+        button:hover {
+            background-color: #DAEEAD;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        #nextSection {
+            display: none;
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="button-container" id="button-container">
+        <img src="image/icon-finish.png" alt="Play Button" id="play-button">
+    </div>
+
+    <audio id="audio-player" autoplay muted preload="auto">
+        <source src="sound/G-Eazy & Halsey - Him & I.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="play-section">
+        <div id="my-canvas"></div>
+        <div class="button-puzzle" id="button-puzzle">
+            <button id="shuffleBtn">Shuffle</button>
+            <button id="shuffleGridBtn">Shuffle Grid</button>
+            <button id="solveBtn">Solve</button>
+        </div>
+    </div>
+
+    <div id="nextSection"></div>
+
+    <footer>
+        Lovingly made with Meraki by Putri Nabella ❤️
+    </footer>
+
+    <script>
+        window.addEventListener('load', () => {
+            const audio = document.getElementById('audio-player');
+            audio.muted = false;
+            audio.play().catch(error => console.log("Autoplay failed: ", error));
+        });
+
+        // Load Puzzle Image
+        const puzzleImage = new Image();
+        puzzleImage.src = 'image/jigsaw-picture.jpg';
+
+        let puzzleCanvas;
+
+        puzzleImage.onload = () => {
+            puzzleCanvas = new headbreaker.Canvas('my-canvas', {
+                width: 800,
+                height: 700,
+                pieceSize: 70,
+                proximity: 18,
+                borderFill: 8,
+                strokeWidth: 1.5,
+                lineSoftness: 0.18,
+                image: puzzleImage,
+                strokeColor: 'black',
+                preventOffstageDrag: true,
+                fixed: true
+            });
+
+            puzzleCanvas.adjustImagesToPuzzleHeight();
+            puzzleCanvas.autogenerate({
+                horizontalPiecesCount: 6,
+                verticalPiecesCount: 6,
+                insertsGenerator: headbreaker.generators.flipflop
+            });
+
+            puzzleCanvas.shuffle(0.7);
+            puzzleCanvas.draw();
+
+            puzzleCanvas.attachSolvedValidator();
+            puzzleCanvas.onValid(() => {
+                document.body.style.backgroundImage = "url('image/bg-finish.png')";
+                document.getElementById('nextSection').style.display = 'none';
+                document.getElementById('button-container').style.display = 'block';
+                document.getElementById('play-section').style.display = 'none';
+            });
+
+            const connectionAudio = new Audio('sound/click.mp3');
+
+            puzzleCanvas.onConnect((_piece, figure, _target, targetFigure) => {
+                connectionAudio.play();
+                figure.shape.stroke('red');
+                targetFigure.shape.stroke('red');
+                puzzleCanvas.redraw();
+
+                setTimeout(() => {
+                    figure.shape.stroke('black');
+                    targetFigure.shape.stroke('black');
+                    puzzleCanvas.redraw();
+                }, 200);
+            });
+
+            puzzleCanvas.onDisconnect(() => {
+                connectionAudio.play();
+            });
+        };
+
+        // Button event listeners
+        document.getElementById('shuffleBtn').addEventListener('click', () => {
+            puzzleCanvas.shuffle(0.7);
+            puzzleCanvas.draw();
+        });
+
+        document.getElementById('shuffleGridBtn').addEventListener('click', () => {
+            puzzleCanvas.shuffleGrid();
+            puzzleCanvas.draw();
+        });
+
+
+        document.getElementById('solveBtn').addEventListener('click', () => {
+            puzzleCanvas.solve();
+            puzzleCanvas.draw();
+        });
+
+
+        /// here
+
+        document.getElementById('play-button').addEventListener('click', function () {
+            resetPuzzle();
+        });
+        function resetPuzzle() {
+            // Show the play section and hide the next section
+            document.getElementById('play-section').style.display = 'flex';
+            document.getElementById('nextSection').style.display = 'none';
+            document.getElementById('button-container').style.display = 'none';
+
+            // Reset the canvas
+            if (puzzleCanvas) {
+                puzzleCanvas.shuffle(0.7);
+                puzzleCanvas.draw();
+            }
+
+            // Restore the original background
+            document.body.style.backgroundImage = "url('image/bg-picture.png')"; // Ensure this matches your original background image path
+        }
+
+
+        /// until here
+    </script>
+    <script src="https://flbulgarelli.github.io/headbreaker/js/headbreaker.js"></script>
+</body>
+
+</html>
