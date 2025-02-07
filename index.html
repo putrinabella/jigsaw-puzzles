@@ -92,7 +92,7 @@
         <div class="button-puzzle" id="button-puzzle">
             <button id="shuffleBtn">Shuffle</button>
             <button id="shuffleGridBtn">Shuffle Grid</button>
-            <button id="solveBtn">Solve</button>
+<!--             <button id="solveBtn">Solve</button> -->
         </div>
     </div>
 
@@ -103,11 +103,12 @@
     </footer>
 
     <script>
-        window.addEventListener('load', () => {
-            const audio = document.getElementById('audio-player');
-            audio.muted = false;
-            audio.play().catch(error => console.log("Autoplay failed: ", error));
-        });
+     const audio = document.getElementById('audio-player');
+        document.body.addEventListener('click', () => {
+        audio.muted = false;
+        audio.play().catch(error => console.log("Autoplay failed: ", error));
+    });
+
 
         // Load Puzzle Image
         const puzzleImage = new Image();
